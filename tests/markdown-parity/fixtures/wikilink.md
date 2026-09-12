@@ -1,0 +1,5 @@
+---
+title: Wikilink target
+---
+
+Target.
