@@ -1,0 +1,58 @@
+<!doctype html>
+<html data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Markdown editor — playground</title>
+    <style>
+      :root { color-scheme: dark; }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; margin: 0; background: #1c1c1c; color: #dadada;
+        font: 14px/1.5 ui-sans-serif, -apple-system, system-ui, sans-serif; }
+      #app { display: flex; flex-direction: column; height: 100%; }
+      .bar { display: flex; align-items: center; gap: 14px; padding: 8px 14px;
+        border-bottom: 1px solid #333; background: #232323; flex: none; }
+      .bar strong { font-weight: 600; font-size: 12px; letter-spacing: .06em;
+        text-transform: uppercase; color: #888; }
+      .bar select, .bar button { background: #2d2d2d; color: #dadada; border: 1px solid #3d3d3d;
+        border-radius: 4px; padding: 4px 9px; font: inherit; font-size: 13px; cursor: pointer; }
+      .bar button:hover, .bar select:hover { border-color: #555; }
+      .bar .spacer { flex: 1; }
+      .hint { color: #777; font-size: 12px; }
+      .hint code { background: #2a2a2a; padding: 1px 5px; border-radius: 3px; }
+      #host { flex: 1; min-height: 0; }
+      #host .cm-editor { height: 100%; }
+      #host .cm-editor.cm-focused { outline: none; }
+      /* Light mode uses Obsidian's own light values so the comparison stays honest. */
+      html[data-theme='light'] { color-scheme: light; }
+      html[data-theme='light'] body { background: #fff; color: #222; }
+      html[data-theme='light'] .bar { background: #f6f6f6; border-color: #e0e0e0; }
+      html[data-theme='light'] .bar select, html[data-theme='light'] .bar button {
+        background: #fff; color: #222; border-color: #ddd; }
+      html[data-theme='light'] .md-obsidian {
+        --text-normal: #222222; --text-muted: #5c5c5c; --text-faint: #999999;
+        --background-primary: #ffffff; --background-secondary: #f6f6f6;
+        --background-primary-alt: #f2f2f2; --background-modifier-border: #e0e0e0;
+        --code-background: #f2f2f2;
+        --indentation-guide-color: color-mix(in oklch, black 12%, transparent);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="bar">
+        <strong>Markdown editor</strong>
+        <select id="doc"></select>
+        <button id="theme">Light</button>
+        <button id="reset">Reset document</button>
+        <span class="spacer"></span>
+        <span class="hint">
+          Try: <code>&gt; [!warning] title</code> &middot; click a table cell &middot;
+          <code>Ctrl+F</code> &middot; <code>Tab</code> in a list
+        </span>
+      </div>
+      <div id="host"></div>
+    </div>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
