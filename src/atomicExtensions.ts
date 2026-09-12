@@ -28,6 +28,7 @@ import { indentOnInput, type LanguageDescription } from '@codemirror/language'
 import { search, searchKeymap } from '@codemirror/search'
 import { defaultSearchPanel } from './searchPanel'
 import { Compartment, EditorState, type Extension } from '@codemirror/state'
+import type { MarkdownConfig } from '@lezer/markdown'
 import {
   drawSelection,
   dropCursor,
@@ -55,6 +56,13 @@ export interface AtomicExtensionsConfig {
   readOnly?: boolean
   /** Supply to keep a handle on the read-only compartment for live toggling. */
   readOnlyCompartment?: Compartment
+  /** Extra `@lezer/markdown` grammar extensions layered onto `highlightMarkdown`
+   * — e.g. `math.ts`'s `mathMarkdown`. `markdown()` builds its `Language`
+   * once, right here, from a fixed extension list; a construct that needs
+   * real grammar (not just decorations over the existing tree) has no other
+   * seam to reach it from, since there is no way to graft a parser extension
+   * onto an already-constructed `Language` afterward. */
+  markdownExtensions?: readonly MarkdownConfig[]
 }
 
 export function atomicExtensions(config: AtomicExtensionsConfig = {}): Extension[] {
@@ -63,6 +71,7 @@ export function atomicExtensions(config: AtomicExtensionsConfig = {}): Extension
     codeLanguages = [],
     readOnly = false,
     readOnlyCompartment = new Compartment(),
+    markdownExtensions = [],
   } = config
 
   const handleLinkClick = (url: string): void => {
@@ -99,7 +108,7 @@ export function atomicExtensions(config: AtomicExtensionsConfig = {}): Extension
     markdown({
       base: markdownLanguage,
       codeLanguages: [...codeLanguages],
-      extensions: highlightMarkdown,
+      extensions: [highlightMarkdown, ...markdownExtensions],
     }),
     // Extend closeBrackets to markdown's symmetric delimiters. WITHOUT this
     // line `startAsteriskList` and `extendEmphasisPair` are dead code — both

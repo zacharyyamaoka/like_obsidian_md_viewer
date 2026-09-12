@@ -1,0 +1,28 @@
+/**
+ * Inline title chrome. Scoped under `.md-obsidian` like every other file in
+ * this directory, so it only ever applies inside the Obsidian-parity surface.
+ *
+ * Values measured from a running Obsidian 1.12.7 (`read_tokens.py` against
+ * `--inline-title-*`): size 1.618em / weight 700 — identical to
+ * `--h1-size`/`--h1-weight` in obsidian-tokens.css, because Obsidian's own
+ * `.inline-title h1` rule reads the SAME h1 variables rather than a separate
+ * number. Referencing them here (with a literal fallback alongside, in case
+ * this file ever loads before obsidian-tokens.css) keeps the title locked to
+ * the heading scale instead of a second hardcoded copy that could drift from
+ * it if the scale is ever retuned. line-height 1.2, margin-bottom 0.5em and
+ * letter-spacing -0.015em are this construct's own tokens — Obsidian ships
+ * `--inline-title-*` variables for exactly these, currently unset in
+ * obsidian-tokens.css, so `--inline-title-*` is read first and falls back to
+ * the literal measurement.
+ */
+.md-obsidian .md-inline-title {
+  font-size: var(--inline-title-size, var(--h1-size, 1.618em));
+  font-weight: var(--inline-title-weight, var(--h1-weight, 700));
+  line-height: var(--inline-title-line-height, 1.2);
+  letter-spacing: var(--inline-title-letter-spacing, -0.015em);
+  margin-block-end: var(--inline-title-margin-bottom, 0.5em);
+  color: var(--inline-title-color, var(--text-normal, #dadada));
+  white-space: pre-wrap;
+  word-break: break-word;
+  cursor: text;
+}

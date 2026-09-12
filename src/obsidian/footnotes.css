@@ -1,0 +1,59 @@
+/*
+ * Footnotes — every value measured live over CDP from a running Obsidian
+ * 1.12.7 against /home/bam/.markdown-acceptance/vault, the same method
+ * obsidian-tokens.css documents at its own header. `--text-muted` and
+ * `--text-faint` are already defined there (#b3b3b3 / #666666, matching the
+ * live-measured rgb(179,179,179) / rgb(102,102,102) exactly); this file only
+ * adds what's specific to footnotes.
+ *
+ * `--footnote-size` in real Obsidian resolves to `var(--font-smaller)`
+ * (0.875em, already the value obsidian-tokens.css uses for its own
+ * `--font-smaller`) — reused directly rather than reintroducing the same
+ * number under a second name. `--font-smallest` (0.8em) has no existing
+ * token in this codebase yet, so it's inlined here with its Obsidian name in
+ * a comment for the next person who goes looking for it.
+ */
+
+/* ---- reference: `[^1]` inline, brackets stay on screen ------------------ */
+
+.md-obsidian .cm-md-footnote-ref {
+  /* Obsidian: position:relative; font-size:var(--font-smallest);
+     vertical-align:text-top; top:-0.2em — measured on .cm-footref. */
+  position: relative;
+  top: -0.2em;
+  font-size: 0.8em; /* --font-smallest */
+  vertical-align: text-top;
+  cursor: text;
+}
+
+.md-obsidian .cm-md-footnote-marker {
+  /* the `[^` / `]` pieces: .cm-footref.cm-hmd-barelink.cm-formatting, faint */
+  color: var(--text-faint);
+}
+
+.md-obsidian .cm-md-footnote-label {
+  /* the label itself: .cm-footref.cm-hmd-barelink alone, one step brighter */
+  color: var(--text-muted);
+}
+
+/* ---- definition: `[^1]:` collapses to just the raised label ------------- */
+
+.md-obsidian .cm-md-footnote-def-line {
+  /* Obsidian: .cm-line.HyperMD-footnote { font-size: var(--footnote-size) } —
+     the WHOLE line shrinks, body text included, not just the marker. */
+  font-size: var(--font-smaller);
+}
+
+.md-obsidian .cm-md-footnote-def-marker {
+  /* Obsidian: .cm-hmd-footnote { display:inline-block; position:relative;
+     top:-0.3em; font-size:var(--font-smallest); color:var(--text-muted) }.
+     `font-size` here is relative to the already-shrunk line above (matches
+     Obsidian's own measured 11.2px = 0.8 × 0.875 × 16px — no separate
+     compounding math needed, CSS em nests it for free). */
+  display: inline-block;
+  position: relative;
+  top: -0.3em;
+  font-size: 0.8em; /* --font-smallest */
+  color: var(--text-muted);
+  cursor: text;
+}

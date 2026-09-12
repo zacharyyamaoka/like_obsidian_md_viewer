@@ -427,3 +427,100 @@
 .md-obsidian .cm-atomic-link::after,
 .md-obsidian .cm-atomic-wiki-link::after { content: none !important; }
 .md-obsidian .cm-atomic-link-icon { display: none !important; }
+
+/* WHY the icon comes BACK for external links: checked at 2x against the real
+   oracle — Obsidian does show a small external-link glyph after an http link,
+   and shows none after a [[wikilink]] or its alias. Upstream painted it on
+   both; only the wikilink case was wrong. */
+.md-obsidian .cm-atomic-link::after { content: '' !important; }
+.md-obsidian .cm-atomic-link-icon { display: inline-block !important; }
+.md-obsidian .cm-atomic-wiki-link::after { content: none !important; }
+.md-obsidian .cm-atomic-wiki-link .cm-atomic-link-icon { display: none !important; }
+
+/* ---- Verifier round 1 corrections ------------------------------------ */
+
+/* Checked-task glyph was drawing tiny in the top-left corner: the ::after was
+   inset to the box but the mask sized against the wrong box. Centre it on the
+   full square and let the mask do the sizing. */
+.md-obsidian .cm-atomic-task-checkbox:checked::after {
+  inset: 0;
+  -webkit-mask-size: 72% 72%;
+  mask-size: 72% 72%;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+/* Tables: Obsidian sizes to content, not the full measure, and honours the
+   `---:` delimiter row's alignment. Upstream's table widget writes the
+   alignment onto the cells; we were overriding it with a blanket `text-align:
+   left` on th. */
+.md-obsidian .cm-atomic-table table,
+.md-obsidian table { width: auto; max-width: 100%; }
+.md-obsidian th { text-align: inherit; }
+.md-obsidian th[align='right'], .md-obsidian td[align='right'] { text-align: right; }
+.md-obsidian th[align='center'], .md-obsidian td[align='center'] { text-align: center; }
+.md-obsidian th[align='left'], .md-obsidian td[align='left'] { text-align: left; }
+
+/* Callouts sat ~15-20px tighter than Obsidian's. Its padding is 12px top and
+   bottom of the WHOLE box; ours is split across first/last lines, so each
+   needs the full 12px plus the line's own leading. */
+.md-obsidian .cm-md-callout-first { padding-top: var(--size-4-4); }
+.md-obsidian .cm-md-callout-last { padding-bottom: var(--size-4-4); }
+
+/* A plain fence with no language was tinting purple and drawing a left rail
+   neither of which Obsidian has. */
+.md-obsidian .cm-atomic-fenced-code {
+  color: var(--code-normal);
+  border-left: none;
+}
+
+/* ---- Verifier round 2 corrections ------------------------------------ */
+
+/* Inline title: measured rgb(218,218,218) — plain text colour, NOT the accent.
+   `--inline-title-color` maps to `--h1-color`, which Obsidian leaves EMPTY so
+   it inherits; an empty custom property is not the same as an unset one, so a
+   `var(--inline-title-color, fallback)` never reaches its fallback and the
+   colour came from whatever cascaded in. Set it outright. */
+.md-obsidian { --inline-title-color: var(--text-normal); --h1-color: var(--text-normal); }
+.md-obsidian .md-inline-title, .md-obsidian .cm-md-inline-title {
+  color: var(--text-normal);
+}
+
+/* Measured: the metadata container's border-bottom-width is 0px. We were
+   drawing a rule Obsidian does not have. */
+.md-obsidian .md-properties { border-bottom: none; }
+
+/* Obsidian's tag pills carry a remove affordance; ours had none. */
+.md-obsidian .md-property-pill {
+  display: inline-flex; align-items: center; gap: 2px;
+}
+.md-obsidian .md-property-pill::after {
+  content: '';
+  width: 11px; height: 11px;
+  background-color: currentColor;
+  opacity: .55;
+  -webkit-mask: var(--md-pill-x) center / contain no-repeat;
+  mask: var(--md-pill-x) center / contain no-repeat;
+}
+.md-obsidian {
+  --md-pill-x: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>');
+}
+
+/* ---- Measured block-height corrections -------------------------------- */
+/* Measured with CodeMirror's own geometry on both sides (lineBlockAt().top),
+   which isolates each block's height instead of reading a cumulative offset:
+   every callout came out ~20px shorter than Obsidian's, and the math block
+   ~46px shorter. Obsidian's box padding is 12px top and bottom, but its title
+   row and content are separate blocks with space between them — ours are
+   consecutive LINES, so that inter-block space has to be added explicitly. */
+.md-obsidian .cm-md-callout-first { padding-bottom: 10px; }
+.md-obsidian .cm-md-callout-last { padding-top: 10px; }
+.md-obsidian .cm-md-callout-first.cm-md-callout-last { padding-top: var(--size-4-4); padding-bottom: var(--size-4-4); }
+
+/* Display math is a centred block with real air around it, not an inline run. */
+.md-obsidian .md-math-block,
+.md-obsidian .cm-md-math-block {
+  display: block;
+  text-align: center;
+  padding: var(--size-4-4) 0;
+}

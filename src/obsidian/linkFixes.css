@@ -1,0 +1,71 @@
+/* linkFixes.css — see linkFixes.ts for the full investigation. Loaded AFTER
+ * obsidian-tokens.css by the integration step; both rules below rely on that
+ * order to win on equal selector specificity rather than reaching for
+ * `!important`. */
+
+/* ---- Fix 1: wiki-link alias pipe leaking while being edited ----------- */
+/* `.cm-atomic-wiki-link-active` (wiki-links.ts) is the raw, revealed source
+ * of a `[[target]]` / `[[target|alias]]` while the cursor is inside it — by
+ * design it carries no styling of its own, so the reveal shows plain text.
+ * But the bracketed run inside it is ALSO still wrapped by upstream's own
+ * markdown-link highlighter (`.cm-atomic-link`, link color + underline),
+ * because `[wikilink|with an alias]` is indistinguishable from ordinary link
+ * text to a parser that doesn't know wiki-links exist. Outside the active
+ * state that nested span is harmless — it sits inside wiki-links.ts's own
+ * `.cm-atomic-wiki-link-hidden-syntax`, whose `font-size: 0` cascades down
+ * regardless of the nested span's own color. Only once revealed does it
+ * paint through, underlined, as if the raw `wikilink|` prefix were itself a
+ * clickable link.
+ *
+ * Measured against the real Obsidian oracle (1.13.7 over CDP, 01-elements.md,
+ * mouse moved away first so `:hover` isn't a confound): while revealed,
+ * Obsidian shows `[[` / `]]` in `--text-faint`, and the ENTIRE inner run —
+ * target, pipe, and alias alike, no distinction between them — in the plain
+ * link color with NO underline. (`cm-link-has-alias`, `cm-link-alias-pipe`
+ * and `cm-link-alias` all resolve to identical computed styles; underline is
+ * strictly a `:hover` affordance, never a reveal-state default.) */
+.cm-atomic-wiki-link-active {
+  /* The two literal bracket characters are plain, unwrapped text directly
+   * inside this span, so they simply inherit this color. */
+  color: var(--atomic-editor-fg-faint, #666);
+}
+.cm-atomic-wiki-link-active .cm-atomic-link {
+  /* Higher specificity than the base `.cm-atomic-link` rule cancels the
+   * underline outright; its own `color` rule is untouched (and unaffected by
+   * the ancestor color above, since a descendant's own explicit rule always
+   * wins over an inherited value) so the link tint still shows through. */
+  text-decoration: none;
+}
+
+/* ---- Fix 2: heading top spacing --------------------------------------- */
+/* obsidian-tokens.css (not ours — being edited concurrently) currently gives
+ * `.cm-atomic-h1` an incorrect 24px top padding and `.cm-atomic-h2`/`h3` a
+ * flat, coincidentally-correct 16px, with h4–h6 left at the original file's
+ * flat 16px and no collapse rule anywhere. Measured against the real
+ * Obsidian oracle (1.13.7 over CDP, `01-elements.md`, computed
+ * `padding-top`): the 16px gap is NOT a function of heading level — every
+ * level uses the same flat value — it collapses to 0 specifically when a
+ * heading immediately follows another heading across exactly one blank
+ * line (a nested-outline title block reads as one unit; a heading after a
+ * paragraph, list, callout, etc. always keeps the full 16px). Reproduced
+ * both in the fixture (H2/H3/H4 stacked under H1) and in a scratch note; a
+ * heading directly adjacent to another with NO blank line between them does
+ * NOT collapse — that pattern is unrelated to the one being matched here. */
+.md-obsidian .cm-atomic-h1,
+.md-obsidian .cm-atomic-h2,
+.md-obsidian .cm-atomic-h3,
+.md-obsidian .cm-atomic-h4,
+.md-obsidian .cm-atomic-h5,
+.md-obsidian .cm-atomic-h6 {
+  padding-top: 16px;
+}
+
+/* `:has(> br:only-child)` is how an actually-blank CodeMirror line reads in
+ * the DOM (`<div class="cm-line"><br></div>`) — a line with real text has no
+ * bare `<br>` child, so this never matches a one-line paragraph wedged
+ * between two headings, only a true blank-line separator. */
+.md-obsidian :is(.cm-atomic-h1, .cm-atomic-h2, .cm-atomic-h3, .cm-atomic-h4, .cm-atomic-h5, .cm-atomic-h6)
+  + .cm-line:has(> br:only-child)
+  + :is(.cm-atomic-h1, .cm-atomic-h2, .cm-atomic-h3, .cm-atomic-h4, .cm-atomic-h5, .cm-atomic-h6) {
+  padding-top: 0;
+}

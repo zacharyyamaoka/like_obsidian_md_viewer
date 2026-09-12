@@ -1,0 +1,79 @@
+/*
+ * Wiki embeds — `![[note]]` transclusion.
+ *
+ * Obsidian's box is almost entirely one border: `.markdown-embed` sets every
+ * side to `none` except `border-inline-start: 2px solid
+ * var(--interactive-accent)`, and its background is `inherit` — there is no
+ * visible "card", just the accent rail. Padding, title weight and the
+ * top-right expand glyph are measured from `.embed-title` /
+ * `.markdown-embed-link` in a running Obsidian 1.12.7's own app.css and
+ * cross-checked against the oracle capture. Tokens come from
+ * `obsidian-tokens.css`, loaded before this file.
+ */
+
+.md-obsidian .md-embed {
+  position: relative;
+  margin: var(--p-spacing, 1rem) 0;
+  padding-inline-start: var(--size-4-6);
+  padding-inline-end: var(--size-4-4);
+  border-inline-start: 2px solid var(--interactive-accent);
+}
+
+.md-obsidian .md-embed-title {
+  font-weight: calc(400 + var(--bold-modifier));
+  color: var(--text-normal);
+  line-height: var(--line-height-tight, 1.3);
+  /* Room on the right for the absolutely-positioned expand glyph so a long
+     title elides under it instead of running underneath. */
+  padding-inline-end: var(--size-4-4);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.md-obsidian .md-embed-body {
+  margin-top: var(--size-4-1);
+  color: var(--text-normal);
+  white-space: pre-wrap;
+}
+
+/* A resolver that returned null: title still renders (see embeds.ts), body
+ * degrades to a muted note rather than an empty, unexplained gap. This is
+ * deliberately NOT an Obsidian-measured state — Obsidian's own unresolved
+ * embed has no equivalent capture in the oracle — it's this layer's own
+ * fail-visibly convention, matching the failure style already used for
+ * `cm-atomic-wiki-link-missing`. */
+.md-obsidian .md-embed-body-missing {
+  color: var(--text-faint);
+  font-style: italic;
+  white-space: normal;
+}
+
+/* The small expand affordance at the top-right corner. Obsidian's own glyph
+ * is Lucide's "maximize-2" (two diagonal corner arrows); reproduced as a mask
+ * so it takes currentColor, the same technique the callout and property
+ * icons in this layer already use. */
+.md-obsidian .md-embed-expand {
+  position: absolute;
+  top: 4px;
+  inset-inline-end: 4px;
+  width: 16px;
+  height: 16px;
+  box-sizing: content-box;
+  padding: var(--size-2-2, 4px);
+  border-radius: var(--radius-s);
+  color: var(--text-faint);
+  background-color: currentColor;
+  opacity: 0.85;
+  -webkit-mask: var(--md-embed-expand-icon) center / 16px no-repeat;
+  mask: var(--md-embed-expand-icon) center / 16px no-repeat;
+}
+
+.md-obsidian .md-embed-expand:hover {
+  color: var(--text-normal);
+  opacity: 1;
+}
+
+.md-obsidian {
+  --md-embed-expand-icon: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>');
+}

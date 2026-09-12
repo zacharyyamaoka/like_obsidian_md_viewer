@@ -16,8 +16,40 @@
  * (9em), key text 14px muted, value 14px normal, tag pills 14px at radius 28px
  * on a 10% accent tint.
  */
-import { type EditorState, type Extension, type Range, StateField } from '@codemirror/state'
+import {
+  type EditorState,
+  type Extension,
+  type Range,
+  StateEffect,
+  StateField,
+} from '@codemirror/state'
 import { Decoration, type DecorationSet, EditorView, WidgetType } from '@codemirror/view'
+
+/** WHY a focus field rather than just testing the selection: a fresh editor's
+ * selection is an empty cursor at position 0, which IS inside the frontmatter —
+ * so a pure selection test hides the panel on every load and shows raw,
+ * mis-parsed YAML as the first thing on screen. Obsidian reveals the source
+ * only once you actually put a cursor in it, which means focus. */
+const setFocused = StateEffect.define<boolean>()
+
+const focusField = StateField.define<boolean>({
+  create: () => false,
+  update(value, tr) {
+    for (const e of tr.effects) if (e.is(setFocused)) return e.value
+    return value
+  },
+})
+
+const focusWatcher = EditorView.domEventHandlers({
+  focus: (_e, view) => {
+    view.dispatch({ effects: setFocused.of(true) })
+    return false
+  },
+  blur: (_e, view) => {
+    view.dispatch({ effects: setFocused.of(false) })
+    return false
+  },
+})
 
 export interface PropertyRow {
   key: string
@@ -163,9 +195,12 @@ function buildDecorations(state: EditorState): DecorationSet {
   if (!parsed || parsed.rows.length === 0) return Decoration.none
 
   const to = Math.min(parsed.to, state.doc.length)
-  // Reveal the raw YAML whenever the cursor is inside it — the same rule every
-  // other construct follows, so the source stays editable by clicking in.
-  const cursorInside = state.selection.ranges.some((r) => r.from <= to && r.to >= 0)
+  // Reveal the raw YAML when the cursor is inside it AND the editor is focused
+  // — the same rule every other construct follows, so the source stays editable
+  // by clicking in, without the unfocused default cursor at 0 counting.
+  const focused = state.field(focusField, false) ?? false
+  const cursorInside =
+    focused && state.selection.ranges.some((r) => r.from <= to && r.to >= 0)
   if (cursorInside) return Decoration.none
 
   const out: Array<Range<Decoration>> = [
@@ -177,12 +212,15 @@ function buildDecorations(state: EditorState): DecorationSet {
 const propertiesField = StateField.define<DecorationSet>({
   create: (state) => buildDecorations(state),
   update(value, tr) {
-    if (!tr.docChanged && !tr.selection) return value
+    // A focus change carries neither a doc change nor a selection, so it has to
+    // be listed explicitly or the panel never re-renders when focus moves.
+    const focusChanged = tr.effects.some((e) => e.is(setFocused))
+    if (!tr.docChanged && !tr.selection && !focusChanged) return value
     return buildDecorations(tr.state)
   },
   provide: (f) => EditorView.decorations.from(f),
 })
 
 export function properties(): Extension {
-  return [propertiesField]
+  return [focusField, focusWatcher, propertiesField]
 }

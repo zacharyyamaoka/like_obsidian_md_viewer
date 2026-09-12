@@ -1,0 +1,42 @@
+/*
+ * Math (`$inline$`, `$$block$$`) — scoped to `.md-obsidian` like every other
+ * file in this directory, so these rules only ever apply inside our editor
+ * and never leak onto a host page that also happens to load KaTeX.
+ *
+ * `katex/dist/katex.min.css` (imported by math.ts, right beside this file)
+ * supplies all real typesetting — glyph metrics, fonts, and `.katex-display`'s
+ * own centring + `margin: 1em 0`, which already lands close to the `padding:
+ * 1em 0px` measured on Obsidian's own `.math-block > mjx-container`. What's
+ * below is only the handful of details KaTeX's stylesheet can't know on its
+ * own: this editor's colours, and this editor's layout.
+ */
+
+/* Obsidian renders math in the SAME colour as surrounding prose — measured
+ * on the oracle capture, `E = mc^2` and the body text around it are the
+ * identical shade of --text-normal, not some separate "math colour". KaTeX's
+ * own CSS sets an explicit black/currentColor mix depending on element; this
+ * flattens it back to one inherited color so light/dark theming (and the
+ * accent-tinted callout/blockquote contexts math can sit inside) all just
+ * work without a second palette to keep in sync. */
+.md-obsidian .cm-md-math,
+.md-obsidian .cm-md-math .katex,
+.md-obsidian .cm-md-math .katex * {
+  color: inherit;
+}
+
+.md-obsidian .cm-md-math-inline {
+  display: inline-block;
+}
+
+.md-obsidian .cm-md-math-block {
+  /* KaTeX's `.katex-display` (a child of this div) already centres itself
+   * and sets `margin: 1em 0`; this only adds the horizontal scroll Obsidian
+   * gives an equation too wide for the line (measured: `overflow-x: auto`
+   * on its own math-block wrapper) instead of letting it push the line width
+   * out or wrap mid-formula. */
+  overflow-x: auto;
+}
+
+.md-obsidian .cm-md-math-block .katex-display {
+  margin: 1em 0;
+}

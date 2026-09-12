@@ -15,6 +15,12 @@ import { obsidianMarkdown } from '../src/obsidian/index'
 // when typing through `**`. Our Obsidian token layer goes on top, never instead.
 import '../src/styles/inline-preview.css'
 import '../src/obsidian/obsidian-tokens.css'
+// Ours, loaded after the token layer — see parity.js for why the order matters.
+import '../src/obsidian/embeds.css'
+import '../src/obsidian/footnotes.css'
+import '../src/obsidian/inlineTitle.css'
+import '../src/obsidian/linkFixes.css'
+import '../src/obsidian/math.css'
 
 const DOCS = {
   '01-elements': 'Element coverage (every construct)',
@@ -55,6 +61,29 @@ for (const [id, label] of Object.entries(DOCS)) {
 const storageKey = (id) => `md-playground:${id}`
 let view = null
 
+// `embeds()`'s resolveEmbed is synchronous (it runs inside a StateField), so
+// a real host resolves against an already-loaded vault index — here that
+// means pre-fetching every `![[target]]` this doc references from the same
+// fixtures directory before the view is (re)constructed, then handing back a
+// plain synchronous map lookup. Rebuilt on every load() so switching or
+// resetting documents doesn't resolve against the PREVIOUS doc's targets.
+async function buildEmbedResolver(doc) {
+  const targets = new Set()
+  for (const m of doc.matchAll(/!\[\[([^\]\n|]+)/g)) targets.add(m[1].trim())
+  const cache = new Map()
+  await Promise.all(
+    [...targets].map(async (target) => {
+      try {
+        const res = await fetch(`/@fs${FIXTURE_DIR}/${target}.md`)
+        cache.set(target, res.ok ? await res.text() : null)
+      } catch {
+        cache.set(target, null)
+      }
+    }),
+  )
+  return (target) => cache.get(target) ?? null
+}
+
 async function fixture(id) {
   if (id === 'scratch') return BLANK
   // WHY /@fs/ and not a relative path: the fixtures live above the vite root,
@@ -75,6 +104,8 @@ async function load(id, { fresh = false } = {}) {
   }
   if (fresh) localStorage.removeItem(storageKey(id))
 
+  const resolveEmbed = await buildEmbedResolver(doc)
+
   view?.destroy()
   host.className = 'md-obsidian'
   view = new EditorView({
@@ -84,6 +115,10 @@ async function load(id, { fresh = false } = {}) {
       extensions: [
         ...obsidianMarkdown({
           onLinkClick: (url) => window.open(url, '_blank', 'noopener,noreferrer'),
+          embeds: { resolveEmbed },
+          // Obsidian's inline title is the note's filename, sans extension —
+          // `id` is exactly that ('01-elements', '02-note', 'scratch').
+          inlineTitle: { title: id === 'scratch' ? '' : id },
         }),
         EditorView.updateListener.of((u) => {
           if (u.docChanged) localStorage.setItem(storageKey(id), u.state.doc.toString())
