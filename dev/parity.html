@@ -1,0 +1,14 @@
+<!doctype html>
+<html data-theme="dark">
+  <head><meta charset="utf-8"/><title>parity</title>
+  <style>
+    html,body{margin:0;height:100%;background:#1c1c1c}
+    #host{height:100%}
+    .cm-editor{height:100%}
+    .cm-editor.cm-focused{outline:none}
+    /* Freeze the caret so a blink cannot change the captured pixels — the
+       same determinism rule the Obsidian oracle capture applies. */
+    *{caret-color:transparent !important;animation-duration:0s !important;transition-duration:0s !important}
+  </style></head>
+  <body><div id="host"></div><script type="module" src="./parity.js"></script></body>
+</html>

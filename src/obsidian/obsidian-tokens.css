@@ -335,3 +335,95 @@
 .md-obsidian .cm-atomic-h1 { padding-top: var(--size-4-6); }
 .md-obsidian .cm-atomic-h2,
 .md-obsidian .cm-atomic-h3 { padding-top: var(--size-4-4); }
+
+/* ---- Properties panel (frontmatter) ---------------------------------- */
+/* Measured: container 700px at 8px 0 padding; key column 144px (9em); key text
+   14px muted; value 14px normal; pills 14px, radius 28px, 10% accent tint. */
+.md-obsidian .md-properties {
+  padding: var(--size-4-2) 0;
+  font-size: var(--font-smaller);
+  border-bottom: var(--border-width) solid var(--background-modifier-border);
+  margin-bottom: var(--size-4-4);
+}
+.md-obsidian .md-properties-heading {
+  color: var(--text-muted);
+  font-size: var(--font-smaller);
+  padding: 0 0 var(--size-4-1) var(--size-4-2);
+}
+.md-obsidian .md-property {
+  display: flex;
+  align-items: flex-start;
+  border-radius: 6px;
+  min-height: 28px;
+}
+.md-obsidian .md-property-key {
+  display: flex;
+  align-items: center;
+  gap: var(--size-4-1);
+  width: 9em;
+  flex: none;
+  color: var(--text-muted);
+  padding: var(--size-4-1) var(--size-4-2);
+}
+.md-obsidian .md-property-icon {
+  width: 14px; height: 14px; flex: none;
+  background-color: currentColor;
+  -webkit-mask: var(--md-prop-icon) center / contain no-repeat;
+  mask: var(--md-prop-icon) center / contain no-repeat;
+  opacity: .8;
+}
+.md-obsidian .md-property-value {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: var(--size-4-1);
+  padding: var(--size-4-1) var(--size-4-2);
+  color: var(--text-normal);
+  min-width: 0;
+}
+.md-obsidian .md-property-pill {
+  background: color-mix(in oklch, var(--interactive-accent) 10%, transparent);
+  color: var(--text-accent);
+  border-radius: 28px;
+  padding: 2px 8px;
+  line-height: 1.2;
+}
+.md-obsidian .md-properties-add {
+  color: var(--text-muted);
+  padding: var(--size-4-1) var(--size-4-2);
+  border-radius: 5px;
+  display: inline-block;
+}
+
+/* ---- List indent guides ---------------------------------------------- */
+/* Obsidian gets these from nested <ul>/<ol> markup; CodeMirror lines are flat
+   siblings, so the depth is measured per line and painted as repeating rules.
+   --indentation-guide-editing-indent (0.85em) is the measured step. */
+.md-obsidian .md-list-indented {
+  --md-step: var(--indentation-guide-editing-indent);
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--indentation-guide-color) 0 var(--border-width),
+    transparent var(--border-width) var(--md-step)
+  );
+  background-size: calc(var(--md-step) * var(--md-indent-depth, 0)) 100%;
+  background-repeat: no-repeat;
+  background-position-x: 0.35em;
+}
+
+/* ---- Tag pills -------------------------------------------------------- */
+.md-obsidian .md-tag {
+  background: var(--tag-background);
+  color: var(--tag-color);
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+  font-size: 0.9em;
+}
+
+/* ---- No external-link icon ------------------------------------------- */
+/* Upstream appends a ↗ glyph after every link (`.cm-atomic-link::after`, and a
+   real `.cm-atomic-link-icon` element inside table cells where a pseudo cannot
+   be clicked). Obsidian's editor shows no such affordance — verified against
+   the oracle capture — so it is suppressed here rather than deleted upstream,
+   keeping the fork's delta to our own layer. */
+.md-obsidian .cm-atomic-link::after,
+.md-obsidian .cm-atomic-wiki-link::after { content: none !important; }
+.md-obsidian .cm-atomic-link-icon { display: none !important; }

@@ -18,6 +18,8 @@ import type { Extension } from '@codemirror/state'
 import { atomicExtensions, type AtomicExtensionsConfig } from '../atomicExtensions'
 import { wikiLinks, type WikiLinksConfig } from '../wiki-links'
 import { callouts } from './callouts'
+import { listGuides } from './listGuides'
+import { properties } from './properties'
 
 export interface ObsidianMarkdownConfig extends AtomicExtensionsConfig {
   /** Extra extensions, appended last so they can out-rank ours with `Prec`. */
@@ -39,11 +41,18 @@ export function obsidianMarkdown(config: ObsidianMarkdownConfig = {}): Extension
     // Upstream leaves wikiLinks() out of its default set; Obsidian has them.
     wikiLinks(wikiLinkConfig ?? {}),
     callouts(),
+    // Frontmatter must out-rank the markdown parser, which otherwise reads
+    // `title:` followed by `---` as a setext heading.
+    properties(),
+    listGuides(),
     ...extensions,
   ]
 }
 
 export { callouts }
+export { listGuides }
+export { parseFrontmatter } from './properties'
+export { properties }
 export { atomicExtensions } from '../atomicExtensions'
 export type { AtomicExtensionsConfig }
 export type { WikiLinksConfig }
