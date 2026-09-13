@@ -4,7 +4,7 @@
  */
 import { launchChrome, openCdpPage, evaluate, delay, key, clickAt } from '../cdp_kit.mjs'
 
-const URL = 'http://127.0.0.1:5399/parity.html?f=01-elements'
+const URL = 'http://127.0.0.1:5400/parity.html?f=01-elements'
 const results = []
 const check = (name, pass, detail = '') => {
   results.push({ name, pass, detail })

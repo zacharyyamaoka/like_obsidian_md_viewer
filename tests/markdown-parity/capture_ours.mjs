@@ -6,12 +6,13 @@
  * between them is a real difference in rendering, not in capture technique.
  */
 import { writeFile, mkdir } from 'node:fs/promises'
-import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { dirname, join } from 'node:path'
 import { launchChrome, openCdpPage, evaluate, delay } from '../cdp_kit.mjs'
 
-const OUT = process.argv[3] || '/home/bam/.markdown-acceptance/shots-ours'
+const OUT = process.argv[3] || join(dirname(fileURLToPath(import.meta.url)), 'out', 'shots-ours')
 const FILES = process.argv.slice(4)
-const BASE = process.argv[2] || 'http://127.0.0.1:5399'
+const BASE = process.argv[2] || 'http://127.0.0.1:5400'
 
 const session = await launchChrome({ label: 'parity_ours' })
 // Same viewport height as the oracle's Xvfb screen so line-breaking and the

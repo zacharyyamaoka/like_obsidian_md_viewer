@@ -24,7 +24,14 @@ export default {
   // the way this Node config file can. Computing it once, here, from
   // import.meta.url keeps the repo relocatable — clone it anywhere and the
   // fixture path is still correct.
+  //
+  // WHY forward-slash it: main.js/parity.js build a `/@fs${FIXTURE_DIR}` URL
+  // for Vite's raw-filesystem route, which wants POSIX-style separators —
+  // fileURLToPath() returns native ones, so on Windows this would otherwise
+  // hand back backslashes and break the URL.
   define: {
-    __FIXTURE_DIR__: JSON.stringify(repoRoot + 'tests/markdown-parity/fixtures'),
+    __FIXTURE_DIR__: JSON.stringify(
+      (repoRoot + 'tests/markdown-parity/fixtures').split('\\').join('/'),
+    ),
   },
 }
