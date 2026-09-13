@@ -2,7 +2,7 @@
  * Probe the INTERACTIONS the audit found missing — the ones a screenshot
  * cannot show. Run against the parity harness after the fork restructure.
  */
-import { launchChrome, openCdpPage, evaluate, delay, key, clickAt } from '/home/bam/clank-workbench/tests/cdp_kit.mjs'
+import { launchChrome, openCdpPage, evaluate, delay, key, clickAt } from '/home/bam/like_obsidian_md_viewer/tests/cdp_kit.mjs'
 
 const URL = 'http://127.0.0.1:5399/parity.html?f=01-elements'
 const results = []

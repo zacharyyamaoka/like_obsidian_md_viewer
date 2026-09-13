@@ -1,4 +1,4 @@
-import { launchChrome, openCdpPage, evaluate, delay } from '/home/bam/clank-workbench/tests/cdp_kit.mjs'
+import { launchChrome, openCdpPage, evaluate, delay } from '/home/bam/like_obsidian_md_viewer/tests/cdp_kit.mjs'
 const MARKS = ["# Heading one","## Heading two","Body copy sets","## Lists","- First bullet","1. First ordered","- [x] A completed","## Quotes and callouts","> A plain blockquote","> [!note]","> [!warning]","> [!tip]","## Table","| Column A","## Code","## Links and references","## Rules and math","A footnote reference"]
 const s = await launchChrome({ label: 'measure' })
 const p = await openCdpPage(await s.devToolsPort(), { width: 1456, height: 1250 })

@@ -46,8 +46,8 @@ def _ok(pg):
     try: return pg.evaluate("() => !!(window.app && window.app.workspace)")
     except Exception: return False
 
-ours = json.loads(subprocess.run(["node","/home/bam/.markdown-acceptance/measure_ours.mjs"],
-        capture_output=True, text=True, cwd="/home/bam/clank-workbench").stdout.strip().splitlines()[-1])
+ours = json.loads(subprocess.run(["node","tests/markdown-parity/measure_ours.mjs"],
+        capture_output=True, text=True, cwd="/home/bam/like_obsidian_md_viewer").stdout.strip().splitlines()[-1])
 theirs = obsidian()
 if theirs is None: raise SystemExit("could not reach Obsidian's EditorView")
 
