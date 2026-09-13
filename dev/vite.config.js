@@ -13,8 +13,12 @@ const repoRoot = fileURLToPath(new URL('..', import.meta.url))
 // WHY forward-slash it: main.js/parity.js build a `/@fs${FIXTURE_DIR}` URL for
 // Vite's raw-filesystem route, which wants POSIX-style separators —
 // fileURLToPath() returns native ones, so on Windows this would otherwise
-// hand back backslashes and break the URL.
-const fixtureDir = (repoRoot + 'tests/markdown-parity/fixtures').split('\\').join('/')
+// hand back backslashes and break the URL. WHY the leading-slash guard too:
+// a POSIX path already starts with `/`, but a Windows path starts with a
+// bare drive letter (`C:/...`) — without it the URL reads `/@fsC:/...`
+// instead of Vite's documented `/@fs/C:/...`.
+let fixtureDir = (repoRoot + 'tests/markdown-parity/fixtures').split('\\').join('/')
+if (!fixtureDir.startsWith('/')) fixtureDir = '/' + fixtureDir
 
 const VIRTUAL_ID = 'virtual:fixture-dir'
 const RESOLVED_VIRTUAL_ID = '\0' + VIRTUAL_ID
