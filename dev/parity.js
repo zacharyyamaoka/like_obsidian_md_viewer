@@ -17,7 +17,7 @@ import '../src/obsidian/inlineTitle.css'
 import '../src/obsidian/linkFixes.css'
 import '../src/obsidian/math.css'
 
-const FIXTURE_DIR = '/home/bam/like_obsidian_md_viewer/tests/markdown-parity/fixtures'
+const FIXTURE_DIR = __FIXTURE_DIR__
 const file = new URLSearchParams(location.search).get('f') || '01-elements'
 const host = document.getElementById('host')
 host.className = 'md-obsidian'

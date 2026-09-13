@@ -7,7 +7,7 @@
  */
 import { writeFile, mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
-import { launchChrome, openCdpPage, evaluate, delay } from '/home/bam/like_obsidian_md_viewer/tests/cdp_kit.mjs'
+import { launchChrome, openCdpPage, evaluate, delay } from '../cdp_kit.mjs'
 
 const OUT = process.argv[3] || '/home/bam/.markdown-acceptance/shots-ours'
 const FILES = process.argv.slice(4)

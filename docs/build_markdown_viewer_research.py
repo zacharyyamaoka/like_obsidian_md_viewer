@@ -7,8 +7,16 @@ from what it describes (same rule as docs/build_variants_report.py).
 
 Inputs:
   docs/assets/markdown-research/*.png   — captures from the probe runs
-  src/plugins/codemirror/livePreview.ts — measured, not quoted from memory
-  src/plugins/codemirror/languages.ts   — ditto
+  <clank-workbench>/src/plugins/codemirror/livePreview.ts — measured, not
+                                           quoted from memory
+  <clank-workbench>/src/plugins/codemirror/languages.ts   — ditto
+
+The "Defect 3" section below measures Clank's OWN pre-existing markdown
+plugin as a comparison baseline — a different, unrelated part of the
+clank-workbench app, not anything that moved into this repo with the
+viewer. Set CLANK_WORKBENCH_PATH to a clank-workbench checkout to
+regenerate that section; measure_source() raises loudly rather than
+silently reporting "not found" as if it were a real measurement.
 
 Output: reports/markdown-viewer-research-<date>.html, or the gitignored
 reports/media/ half when the inlined payload exceeds the tracked threshold
@@ -26,6 +34,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 ASSETS = REPO / "docs" / "assets" / "markdown-research"
+CLANK_WORKBENCH = Path(os.environ.get("CLANK_WORKBENCH_PATH", "/home/bam/clank-workbench")).resolve()
 DATE = os.environ.get("SYSTEMSKETCH_REPORT_DATE", date.today().isoformat())
 TRACKED_PAYLOAD_CAP = 256 * 1024
 PREVIEW_CAP = 2_097_024
@@ -60,11 +69,19 @@ def data_uri(name: str) -> str:
 
 
 def measure_source() -> dict:
-    """Read the real numbers out of the tree rather than hardcoding them."""
-    live = REPO / "src" / "plugins" / "codemirror" / "livePreview.ts"
-    langs = REPO / "src" / "plugins" / "codemirror" / "languages.ts"
-    live_text = live.read_text() if live.exists() else ""
-    langs_text = langs.read_text() if langs.exists() else ""
+    """Read the real numbers out of Clank's own markdown plugin (the
+    comparison baseline "Defect 3" argues against) rather than hardcoding
+    them. Not this repo's tree — see the module docstring."""
+    live = CLANK_WORKBENCH / "src" / "plugins" / "codemirror" / "livePreview.ts"
+    langs = CLANK_WORKBENCH / "src" / "plugins" / "codemirror" / "languages.ts"
+    if not live.exists() or not langs.exists():
+        raise FileNotFoundError(
+            f"Can't measure Clank's markdown plugin at {CLANK_WORKBENCH} "
+            f"({live.name}, {langs.name} not found). Set CLANK_WORKBENCH_PATH "
+            "to a clank-workbench checkout to regenerate this report."
+        )
+    live_text = live.read_text()
+    langs_text = langs.read_text()
     return {
         "live_lines": len(live_text.splitlines()),
         "uses_view_plugin": "ViewPlugin.fromClass" in live_text,

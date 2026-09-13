@@ -15,14 +15,16 @@
     "jsx": "react-jsx",
 
     "noFallthroughCasesInSwitch": true,
-    "strict": true
+    "strict": true,
 
-    /* WHY no noUnusedLocals/noUnusedParameters/erasableSyntaxOnly: per
-       UPSTREAM.md, everything outside src/obsidian/ is upstream's tree,
-       verbatim — it uses constructor parameter properties and carries one
-       deliberately-unused import (searchPanel.ts) to stay diffable against
-       atomic-editor. House lint strictness doesn't apply to someone else's
-       tree we're merging patches into. */
+    /* WHY no erasableSyntaxOnly: constructor parameter properties are used
+       both by upstream's own tree (wiki-links.ts) AND by our own
+       src/obsidian/ compatibility layer (footnotes.ts, inlineTitle.ts,
+       math.ts) — confirmed by re-enabling this flag and reading the errors.
+       Not an upstream-only exception; the whole tree uses the pattern. */
+    "erasableSyntaxOnly": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
   },
   "include": ["src"]
 }

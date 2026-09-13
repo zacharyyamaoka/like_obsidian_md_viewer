@@ -8,7 +8,10 @@ still has a measured height. The DOM-rect version of this returned zeros for
 Obsidian and sent me chasing a phantom.
 """
 import json, subprocess
+from pathlib import Path
 from playwright.sync_api import sync_playwright
+
+REPO = Path(__file__).resolve().parent.parent.parent
 
 MARKS = ["# Heading one","## Heading two","Body copy sets","## Lists","- First bullet",
          "1. First ordered","- [x] A completed","## Quotes and callouts","> A plain blockquote",
@@ -47,7 +50,7 @@ def _ok(pg):
     except Exception: return False
 
 ours = json.loads(subprocess.run(["node","tests/markdown-parity/measure_ours.mjs"],
-        capture_output=True, text=True, cwd="/home/bam/like_obsidian_md_viewer").stdout.strip().splitlines()[-1])
+        capture_output=True, text=True, cwd=REPO).stdout.strip().splitlines()[-1])
 theirs = obsidian()
 if theirs is None: raise SystemExit("could not reach Obsidian's EditorView")
 

@@ -44,7 +44,7 @@ Type anything. A few things worth trying:
 - press Tab here to indent
 `
 
-const FIXTURE_DIR = '/home/bam/like_obsidian_md_viewer/tests/markdown-parity/fixtures'
+const FIXTURE_DIR = __FIXTURE_DIR__
 
 const host = document.getElementById('host')
 const picker = document.getElementById('doc')

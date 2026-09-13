@@ -19,4 +19,12 @@ export default {
     host: '127.0.0.1',
     fs: { allow: [repoRoot] },
   },
+  // WHY define, not a hardcoded path in main.js/parity.js: those are browser
+  // modules, so they can't resolve a filesystem path relative to themselves
+  // the way this Node config file can. Computing it once, here, from
+  // import.meta.url keeps the repo relocatable — clone it anywhere and the
+  // fixture path is still correct.
+  define: {
+    __FIXTURE_DIR__: JSON.stringify(repoRoot + 'tests/markdown-parity/fixtures'),
+  },
 }

@@ -44,10 +44,18 @@ tooling, not part of the automated test suite.
 
 ## Status
 
-Mid pixel-parity tuning. `reports/markdown-viewer-research-2026-09-11.html`
-has the research behind the fork decision; `UPSTREAM.md` has the delta
-discipline. The next step historically was to keep narrowing the measured
-gaps (math/code/table block spacing, the emphasis-mark cursor reveal) against
-a running Obsidian oracle, then do "a lightweight port into the card" —
+Mid pixel-parity tuning, and **not yet a general file-open viewer**: the
+playground (`dev/main.js`) only loads three hardcoded fixtures
+(`01-elements`, `02-note`, `scratch`) — there is no file picker, CLI
+argument, or file-loading host yet for opening an arbitrary `.md` file.
+That's the gap between "the editing surface renders Obsidian-parity
+markdown" (true today) and "a normal markdown file viewer" (the actual
+goal, still ahead).
+
+`reports/markdown-viewer-research-2026-09-11.html` has the research behind
+the fork decision; `UPSTREAM.md` has the delta discipline. The next steps
+historically were to keep narrowing the measured gaps (math/code/table
+block spacing, the emphasis-mark cursor reveal) against a running Obsidian
+oracle, add real file loading, then do "a lightweight port into the card" —
 SystemSketch's whiteboard Markdown block — once this viewer is solid on its
 own.

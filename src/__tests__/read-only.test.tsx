@@ -38,6 +38,18 @@ afterEach(() => {
 
 const TABLE = '| A | B |\n| --- | --- |\n| 1 | 2 |';
 
+// jsdom does not implement the computed `isContentEditable` boolean (it
+// always returns undefined, confirmed against a bare jsdom instance,
+// regardless of what's actually set). It's also asymmetric on the two ways
+// the source sets editability: table-widget.ts assigns the `contentEditable`
+// IDL property, which jsdom tracks on the property but never reflects to the
+// attribute; CodeMirror's own `.cm-content` sets the `contenteditable`
+// *attribute*, which jsdom tracks on the attribute but never reflects to the
+// property. Checking either covers both call sites (and still agrees with a
+// real browser, where the two are always in sync).
+const isEditable = (el: HTMLElement | null | undefined) =>
+  el?.contentEditable === 'true' || el?.getAttribute('contenteditable') === 'true';
+
 describe('read-only mode', () => {
   it('renders table cells non-editable when read-only', () => {
     const { host } = mount({ markdownSource: TABLE, readOnly: true });
@@ -46,7 +58,7 @@ describe('read-only mode', () => {
     );
     expect(sources.length).toBeGreaterThan(0);
     for (const source of sources) {
-      expect(source.isContentEditable).toBe(false);
+      expect(isEditable(source)).toBe(false);
     }
   });
 
@@ -56,14 +68,13 @@ describe('read-only mode', () => {
       '.cm-atomic-table-cell-source',
     );
     expect(source).not.toBeNull();
-    expect(source?.isContentEditable).toBe(true);
+    expect(isEditable(source)).toBe(true);
   });
 
   it('toggles table cell editability in place when the prop flips', () => {
     const { host, rerender } = mount({ markdownSource: TABLE, readOnly: false });
     expect(
-      host.querySelector<HTMLElement>('.cm-atomic-table-cell-source')
-        ?.isContentEditable,
+      isEditable(host.querySelector<HTMLElement>('.cm-atomic-table-cell-source')),
     ).toBe(true);
 
     rerender({ markdownSource: TABLE, readOnly: true });
@@ -71,13 +82,12 @@ describe('read-only mode', () => {
       '.cm-atomic-table-cell-source',
     );
     expect(cells.length).toBeGreaterThan(0);
-    for (const cell of cells) expect(cell.isContentEditable).toBe(false);
+    for (const cell of cells) expect(isEditable(cell)).toBe(false);
 
     // ...and back.
     rerender({ markdownSource: TABLE, readOnly: false });
     expect(
-      host.querySelector<HTMLElement>('.cm-atomic-table-cell-source')
-        ?.isContentEditable,
+      isEditable(host.querySelector<HTMLElement>('.cm-atomic-table-cell-source')),
     ).toBe(true);
   });
 
@@ -87,25 +97,24 @@ describe('read-only mode', () => {
     };
     const { host } = mount({ markdownSource: TABLE, editorHandleRef: handleRef });
     const content = host.querySelector<HTMLElement>('.cm-content');
-    expect(content?.isContentEditable).toBe(true);
+    expect(isEditable(content)).toBe(true);
     expect(
-      host.querySelector<HTMLElement>('.cm-atomic-table-cell-source')
-        ?.isContentEditable,
+      isEditable(host.querySelector<HTMLElement>('.cm-atomic-table-cell-source')),
     ).toBe(true);
 
     act(() => handleRef.current?.setReadOnly(true));
-    expect(content?.isContentEditable).toBe(false);
+    expect(isEditable(content)).toBe(false);
     expect(host.querySelector('.cm-editor')?.classList).toContain(
       'cm-atomic-readonly',
     );
     for (const cell of host.querySelectorAll<HTMLElement>(
       '.cm-atomic-table-cell-source',
     )) {
-      expect(cell.isContentEditable).toBe(false);
+      expect(isEditable(cell)).toBe(false);
     }
 
     act(() => handleRef.current?.setReadOnly(false));
-    expect(content?.isContentEditable).toBe(true);
+    expect(isEditable(content)).toBe(true);
     expect(host.querySelector('.cm-editor')?.classList).not.toContain(
       'cm-atomic-readonly',
     );

@@ -15,6 +15,9 @@ import {
   findNext,
   findPrevious,
   getSearchQuery,
+  // @ts-expect-error unused — kept because this import list is verbatim from
+  // upstream (see file header); removing it would create a permanent diff
+  // against `git diff b6ed65f..atomic/main -- src/`.
   searchPanelOpen,
   setSearchQuery,
   SearchQuery,
