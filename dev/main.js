@@ -9,6 +9,7 @@
 import { EditorState } from '@codemirror/state'
 import { EditorView } from '@codemirror/view'
 import { obsidianMarkdown } from '../src/obsidian/index'
+import { FIXTURE_DIR } from 'virtual:fixture-dir'
 
 // Upstream's stylesheet FIRST — 830 lines covering table cells, wiki-link
 // states, the link hover icon, hr, images, and the rules that stop width jitter
@@ -43,8 +44,6 @@ Type anything. A few things worth trying:
 - [ ] a task — click the checkbox
 - press Tab here to indent
 `
-
-const FIXTURE_DIR = __FIXTURE_DIR__
 
 const host = document.getElementById('host')
 const picker = document.getElementById('doc')

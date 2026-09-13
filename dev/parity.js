@@ -6,6 +6,7 @@
 import { EditorState } from '@codemirror/state'
 import { EditorView } from '@codemirror/view'
 import { obsidianMarkdown } from '../src/obsidian/index'
+import { FIXTURE_DIR } from 'virtual:fixture-dir'
 import '../src/styles/inline-preview.css'
 import '../src/obsidian/obsidian-tokens.css'
 // Ours, loaded after the token layer so they can rely on its variables and
@@ -17,7 +18,6 @@ import '../src/obsidian/inlineTitle.css'
 import '../src/obsidian/linkFixes.css'
 import '../src/obsidian/math.css'
 
-const FIXTURE_DIR = __FIXTURE_DIR__
 const file = new URLSearchParams(location.search).get('f') || '01-elements'
 const host = document.getElementById('host')
 host.className = 'md-obsidian'

@@ -10,6 +10,14 @@
 import { fileURLToPath } from 'node:url'
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url))
+// WHY forward-slash it: main.js/parity.js build a `/@fs${FIXTURE_DIR}` URL for
+// Vite's raw-filesystem route, which wants POSIX-style separators —
+// fileURLToPath() returns native ones, so on Windows this would otherwise
+// hand back backslashes and break the URL.
+const fixtureDir = (repoRoot + 'tests/markdown-parity/fixtures').split('\\').join('/')
+
+const VIRTUAL_ID = 'virtual:fixture-dir'
+const RESOLVED_VIRTUAL_ID = '\0' + VIRTUAL_ID
 
 export default {
   root: fileURLToPath(new URL('.', import.meta.url)),
@@ -19,19 +27,23 @@ export default {
     host: '127.0.0.1',
     fs: { allow: [repoRoot] },
   },
-  // WHY define, not a hardcoded path in main.js/parity.js: those are browser
-  // modules, so they can't resolve a filesystem path relative to themselves
-  // the way this Node config file can. Computing it once, here, from
-  // import.meta.url keeps the repo relocatable — clone it anywhere and the
-  // fixture path is still correct.
-  //
-  // WHY forward-slash it: main.js/parity.js build a `/@fs${FIXTURE_DIR}` URL
-  // for Vite's raw-filesystem route, which wants POSIX-style separators —
-  // fileURLToPath() returns native ones, so on Windows this would otherwise
-  // hand back backslashes and break the URL.
-  define: {
-    __FIXTURE_DIR__: JSON.stringify(
-      (repoRoot + 'tests/markdown-parity/fixtures').split('\\').join('/'),
-    ),
-  },
+  // WHY a virtual module, not `define`: verified directly against this
+  // repo's pinned Vite (8.3.0) that `define` only gets applied on the
+  // bundled/build path — `npm run dev`'s unbundled dev-server transform
+  // skips it entirely, so `__FIXTURE_DIR__` was shipped to the browser
+  // completely literal (a `ReferenceError` waiting to happen) even though a
+  // production build replaced it correctly. A virtual module's `load()`
+  // hook runs the same way in both dev and build, so there's no dev/build
+  // split to fall into.
+  plugins: [
+    {
+      name: 'fixture-dir',
+      resolveId(id) {
+        if (id === VIRTUAL_ID) return RESOLVED_VIRTUAL_ID
+      },
+      load(id) {
+        if (id === RESOLVED_VIRTUAL_ID) return `export const FIXTURE_DIR = ${JSON.stringify(fixtureDir)}`
+      },
+    },
+  ],
 }
